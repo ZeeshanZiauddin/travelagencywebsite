@@ -20,4 +20,21 @@ A modern, responsive **Travel Agency website** built using **Next.js 15**, featu
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/yourusername/travel-agency-website.git
+   git clone https://github.com/yourusername/travel-agency-website.git```
+2. **Installation:**
+
+   ```bash
+   npm install
+3. **Developement:**
+
+   ```bash
+   npm run dev
+4. **Build:**
+
+   ```bash
+   npm run build
+5. **Start:**
+
+   ```bash
+   npm run start
+   
