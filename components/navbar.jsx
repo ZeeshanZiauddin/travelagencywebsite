@@ -6,7 +6,9 @@ import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import Image from "next/image";
 
 export default function Navbar({ company }) {
-  const logo = process.env.NEXT_PUBLIC_STORAGE_BASE_URL + company.logo;
+  const logo = company.logo
+    ? process.env.NEXT_PUBLIC_STORAGE_BASE_URL + company.logo
+    : "/logo.png";
   return (
     <header
       className="sticky top-0 z-50 w-full border-none bg-primary/5 py-1 backdrop-filter 

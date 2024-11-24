@@ -28,3 +28,21 @@ export const sendQuery = async (data, url) => {
     throw error;
   }
 };
+
+export const getQuery = async (url) => {
+  try {
+    const payload = {
+      headers: {
+        api_key: process.env.NEXT_PUBLIC_API_KEY, // Add the api_key in headers
+      },
+    };
+
+    const response = await api.get(url, payload);
+
+    return response;
+  } catch (error) {
+    console.error("API call failed on " + url);
+
+    throw error;
+  }
+};

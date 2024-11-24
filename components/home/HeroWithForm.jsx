@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import { AspectRatio } from "../ui/aspect-ratio";
 import HeroCarousel from "./hero-with-carousel";
 
-export default function HeroForm() {
+export default function HeroForm({ destinations }) {
   return (
     <div className="relative">
       <motion.div
@@ -26,7 +26,7 @@ export default function HeroForm() {
         viewport={{ once: true }}
       >
         <div className="  mt-4  lg:absolute lg:mt-28 lg:top-[50%] lg:left-[50%] lg:translate-x-[-50%] lg:translate-y-[-50%] lg:lg:w-[80%] w-[100%]">
-          <MainForm />
+          <MainForm destinations={destinations} />
         </div>
       </motion.div>
       <motion.div

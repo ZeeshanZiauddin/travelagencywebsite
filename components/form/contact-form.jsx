@@ -3,6 +3,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { z } from "zod"; // Import Zod
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,14 +11,24 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-
 import { Input } from "@/components/ui/input";
-import { sendQuery } from "@/utils/api"; // Import the API function
+import { sendQuery } from "@/utils/api";
 import { Alert, AlertDescription } from "../ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import Image from "next/image";
 import { Textarea } from "../ui/textarea";
+
+// Define Zod schema for validation
+const contactSchema = z.object({
+  full_name: z.string().min(1, "Full name is required."),
+  email: z.string().email("Invalid email address."),
+  phone: z
+    .string()
+    .regex(/^\d{10,16}$/, "Phone number must be between 10 and 16 digits.") // Example regex for phone validation
+    .optional(),
+  message: z.string().min(10, "Message must be at least 10 characters."),
+});
 
 const ContactForm = () => {
   const [formValues, setFormValues] = useState({
@@ -28,26 +39,36 @@ const ContactForm = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [FormErrors, setFormErrors] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
   const [modalInfo, setModalInfo] = useState({ open: false, type: "" });
+
   const handleInputChange = (field, value) => {
     setFormValues((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
-    setFormErrors(null);
+    setFormErrors({});
 
+    // Validate form values using Zod
     try {
-      const result = await sendQuery(formValues, "/contact"); // Call API function
+      contactSchema.parse(formValues); // Throws an error if validation fails
+
+      // Submit data to the API
+      const result = await sendQuery(formValues, "/contact");
       console.log("Form submitted successfully:", result);
       setModalInfo({ open: true, type: "success" });
-    } catch (err) {
-      setFormErrors(err.response?.data?.message || "An error occurred");
-      setModalInfo({ open: true, type: "error" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors = error.flatten().fieldErrors;
+        setFormErrors(errors);
+      } else {
+        setFormErrors({ general: "An error occurred." });
+      }
     } finally {
       setLoading(false);
     }
@@ -56,8 +77,8 @@ const ContactForm = () => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <div className="lg:max-w-lg ">
-          <Card className="shadow-lg border-none bg-red-200 py-1 backdrop-filter backdrop-blur-sm bg-opacity-30">
+        <div className="lg:max-w-lg">
+          <Card className="shadow-lg border-none bg-primary/5 py-1 backdrop-filter backdrop-blur-sm bg-opacity-30">
             <CardHeader className="text-start">
               <h2 className="text-2xl font-semibold leading-none tracking-tight text-primary">
                 Contact us
@@ -68,48 +89,71 @@ const ContactForm = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {FormErrors != null ? (
-                <Alert variant="destructive" className={"bg-primary my-2"}>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{FormErrors}</AlertDescription>
-                </Alert>
-              ) : (
-                ""
-              )}
               <div className="mt-1">
                 <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    placeholder="Full name"
-                    className="bg-white"
-                    value={formValues.full_name}
-                    onChange={(e) =>
-                      handleInputChange("full_name", e.target.value)
-                    }
-                  />
+                  <div>
+                    <Input
+                      placeholder="Full name"
+                      className="bg-white"
+                      value={formValues.full_name}
+                      onChange={(e) =>
+                        handleInputChange("full_name", e.target.value)
+                      }
+                    />
+                    {formErrors.full_name && (
+                      <p className="text-red-500 text-[12px]">
+                        {formErrors.full_name}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Input
+                      placeholder="Phone no"
+                      className="bg-white"
+                      value={formValues.phone}
+                      onChange={(e) =>
+                        handleInputChange("phone", e.target.value)
+                      }
+                    />
+                    {formErrors.phone && (
+                      <p className="text-red-500 text-[12px]">
+                        {formErrors.phone}
+                      </p>
+                    )}
+                  </div>
+                  <div className="col-span-2">
+                    <Input
+                      placeholder="Email"
+                      className="bg-white "
+                      type={"email"}
+                      required
+                      value={formValues.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                    />
+                    {formErrors.email && (
+                      <p className="text-red-500 text-[12px]">
+                        {formErrors.email}
+                      </p>
+                    )}
+                  </div>
+                  <div className="col-span-2">
+                    <Textarea
+                      placeholder={"Your Message"}
+                      value={formValues.message}
+                      onChange={(e) =>
+                        handleInputChange("message", e.target.value)
+                      }
+                      className={" bg-white"}
+                    />
+                    {formErrors.message && (
+                      <p className="text-red-500 text-[12px]">
+                        {formErrors.message}
+                      </p>
+                    )}
+                  </div>
 
-                  <Input
-                    placeholder="Phone no"
-                    className="bg-white"
-                    value={formValues.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                  />
-
-                  <Input
-                    placeholder="Email"
-                    className="bg-white col-span-2"
-                    type={"email"}
-                    required
-                    value={formValues.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                  />
-                  <Textarea
-                    placeholder={"You're Message"}
-                    value={formValues.messages}
-                    onChange={(e) =>
-                      handleInputChange("message", e.target.value)
-                    }
-                    className={"col-span-2 bg-white"}
-                  />
                   <Button
                     type="submit"
                     className="mt-3 col-span-2"
@@ -137,7 +181,9 @@ const ContactForm = () => {
                 src={"/thank-you.jpg"}
                 width={400}
                 height={400}
-                alt={"Thankyou for choosing us our agent will contact you soon"}
+                alt={
+                  "Thank you for choosing us. Our agent will contact you soon."
+                }
               />
             </div>
           ) : (

@@ -20,7 +20,7 @@ import Image from "next/image";
 
 import { motion } from "motion/react";
 
-const MainForm = () => {
+const MainForm = ({ destinations }) => {
   const [formValues, setFormValues] = useState({
     departure: "",
     arrival: "",
@@ -60,20 +60,12 @@ const MainForm = () => {
       console.log("Form submitted successfully:", result);
       setModalInfo({ open: true, type: "success" });
     } catch (err) {
-      setFormErrors(err.response?.data?.message || "An error occurred");
+      setFormErrors(err.response.data.message);
       setModalInfo({ open: true, type: "error" });
     } finally {
       setLoading(false);
     }
   };
-
-  const test = [
-    { value: "next.js", label: "Next.js" },
-    { value: "sveltekit", label: "SvelteKit" },
-    { value: "nuxt.js", label: "Nuxt.js" },
-    { value: "remix", label: "Remix" },
-    { value: "astro", label: "Astro" },
-  ];
 
   return (
     <motion.div
@@ -90,18 +82,22 @@ const MainForm = () => {
                 <div className=" grid lg:grid-cols-6 gap-4">
                   <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 lg:col-span-5">
                     <CustomSelect
+                      key={"departure"}
                       label="Departure"
-                      values={test}
+                      values={destinations}
                       placeholder="Departure"
                       className={"bg-violet-50 "}
-                      onChange={(value) =>
-                        handleInputChange("departure", value)
-                      }
+                      onChange={(value) => {
+                        console.log(value);
+                        handleInputChange("departure", value);
+                      }}
                     />
                     <CustomSelect
+                      key={"arrival"}
                       label="Arrival"
-                      values={test}
+                      values={destinations}
                       placeholder="Arrival"
+                      required
                       className={"bg-violet-50"}
                       onChange={(value) => handleInputChange("arrival", value)}
                     />
@@ -117,6 +113,7 @@ const MainForm = () => {
                       placeholder="First name"
                       className="bg-violet-50"
                       value={formValues.firstName}
+                      required
                       onChange={(e) =>
                         handleInputChange("first_name", e.target.value)
                       }
@@ -125,6 +122,7 @@ const MainForm = () => {
                       placeholder="Last name"
                       className="bg-violet-50"
                       value={formValues.lastName}
+                      required
                       onChange={(e) =>
                         handleInputChange("last_name", e.target.value)
                       }
@@ -133,6 +131,7 @@ const MainForm = () => {
                       placeholder="Email"
                       className="bg-violet-50"
                       value={formValues.email}
+                      required
                       onChange={(e) =>
                         handleInputChange("email", e.target.value)
                       }
@@ -177,9 +176,12 @@ const MainForm = () => {
               </div>
             ) : (
               <div className="text-center">
-                <h2 className="text-lg font-semibold text-red-600">Sorry!</h2>
+                <h2 className="text-lg font-semibold text-red-600">
+                  Request Failed!
+                </h2>
                 <p>
-                  There was an error submitting your query. Please try again.
+                  {FormErrors ??
+                    "An error occured while submitting the query. Please try again"}
                 </p>
               </div>
             )}

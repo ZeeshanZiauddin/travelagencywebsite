@@ -9,11 +9,22 @@ import Team from "@/components/home/team";
 import WhyUs from "@/components/home/why-us";
 
 import { Separator } from "@/components/ui/separator";
+export default async function Home() {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/destinations`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        api_key: process.env.NEXT_PUBLIC_API_KEY, // If needed for validation
+      },
+    }
+  );
+  const destinations = await response.json();
 
-export default function Home() {
   return (
     <>
-      <HeroForm />
+      <HeroForm destinations={destinations} />
       <PageDiscription />
       <Separator className={"my-20"} />
       <Faq />

@@ -24,7 +24,7 @@ const page = () => {
             Cheapest Fairs
             <span className="px-2 py-1 relative inline-block">
               <svg
-                className="stroke-current bottom-0 absolute text-violet-500 -translate-x-2"
+                className="stroke-current bottom-0 absolute text-red-500 -translate-x-2"
                 viewBox="0 0 410 18"
                 xmlns="http://www.w3.org/2000/svg"
               >
